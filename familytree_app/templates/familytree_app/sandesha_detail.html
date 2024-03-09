@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+  .sandesha-photo img {
+    max-width: 100%;
+    height: auto;
+    border: 1px solid #ddd;
+    padding: 5px;
+    object-fit: cover; /* Use 'cover' to maintain aspect ratio and cover the frame */
+    width: 150px; /* Set the fixed width */
+    height: 200px; /* Set the fixed height */
+    border-radius: 10px;
+  }
+</style>
+
+<div class="sandesha-detail-container">
+  <div class="sandesha-info">
+    <p><h2>{{ sandesha_entry.msgType.msgK }}</h2></p>
+    <p style="text-align: justify;">{{ sandesha_entry.msg }}</p>
+  <p style="text-align: right;">{{ sandesha_entry.signatureP }}</p>
+
+  </div>
+
+  <div class="sandesha-photo">
+    {% if sandesha_entry.photo_url %}
+      <img src="{{ sandesha_entry.photo_url.url }}" alt="{{ sandesha_entry.name }}">
+    {% endif %}
+  </div>
+</div>
+
+{% endblock %}

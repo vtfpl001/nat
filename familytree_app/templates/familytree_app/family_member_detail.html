@@ -1,0 +1,397 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+    .family-member-detail {
+        padding: 20px;
+        margin: 20px auto;
+        max-width: 800px;
+        background-color: #f9f9f9;
+        border: 1px solid #ddd;
+        border-radius: 10px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .family-member-detail h2 {
+        font-size: 28px;
+        font-weight: bold;
+        margin-bottom: 10px;
+        color: #fff;
+        background-color: #4CAF50;
+        padding: 10px;
+        text-align: center;
+        border-radius: 5px;
+    }
+
+    .details-table-container {
+        overflow-x: auto;
+    }
+
+    .details-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+    }
+
+    .details-table th,
+    .details-table td {
+        padding: 10px;
+        text-align: left;
+        border: 1px solid #ddd;
+        color: #333;
+    }
+
+    .details-table th {
+        background-color: #f7f7f7;
+    }
+
+    .buttons {
+        margin-top: 20px;
+        text-align: center;
+    }
+
+    .edit-btn,
+    .delete-btn,
+    .add-child-btn,
+    .btn-info {
+        background-color: #007bff;
+        color: #fff;
+        padding: 10px 15px;
+        border: none;
+        border-radius: 5px;
+        text-decoration: none;
+        margin-right: 10px;
+    }
+
+    /* Responsive styles */
+    @media screen and (max-width: 768px) {
+        .family-member-detail {
+            padding: 10px;
+            margin: 10px auto;
+        }
+
+        .details-table {
+            font-size: 14px;
+        }
+    }
+</style>
+
+<div class="family-member-detail">
+    {% if family_member.gender == 'M' %}
+        <h2 class="text-highlight">{{ family_member.surname }} {{ family_member.full_name }}</h2>
+    {% elif family_member.gender == 'F' and family_member.spouse %}
+        <h2 class="text-highlight">{{ family_member.surname }} {{ family_member.full_name }}</h2>
+    {% else %}
+        <h2 class="text-highlight">{{ family_member.full_name }}</h2>
+    {% endif %}
+
+    <table class="details-table">
+        <tr>
+            <th>ID</th>
+            <td>{{ family_member.id }}</td>
+        </tr>
+
+        {% if family_member.gender == "M" %}
+            <tr>
+                <th>પિતા</th>
+                <td>
+                    {% if family_member.parent and family_member.parent.city_id != 72 %}
+                        <a href="{% url 'familytree_app:family_member_detail' family_member.parent.id %}">{{ family_member.parent }}</a>
+                    {% endif %}
+                </td>
+            </tr>
+        {% else %}
+            {% if user.is_authenticated %}
+                <tr>
+                    <th>Husband</th>
+                    <td>
+                        {% if family_member.spouse.id %}
+                            <a href="{% url 'familytree_app:family_member_detail' family_member.spouse.id %}">{{ family_member.spouse }}</a>
+                        {% endif %}
+                    </td>
+                </tr>
+            {% endif %}
+        {% endif %}
+
+        <tr>
+            <th>Gender</th>
+            <td>{{ family_member.gender }}</td>
+        </tr>
+
+        {% if family_member.gender == 'M' %}
+
+                <tr>
+                    <th>જન્મ તારીખ</th>
+                    <td>{{ family_member.date_of_birth|date:"d/m/Y" }}</td>
+                </tr>
+
+
+            <tr>
+                <th>સરનામુ</th>
+                <td>{{ family_member.address|linebreaksbr }}</td>
+            </tr>
+            <tr>
+                <th>City</th>
+                <td>{{ family_member.city }}</td>
+            </tr>
+            <tr>
+                <th>મોબાઈલ</th>
+                <td>{{ family_member.mobile }}</td>
+            </tr>
+            <tr>
+                <th>Email</th>
+                <td>{{ family_member.email }}</td>
+            </tr>
+        {% endif %}
+
+        <tr>
+            <th>Remark</th>
+            <td>{{ family_member.remarks|linebreaksbr }}</td>
+        </tr>
+
+        {% if user.is_authenticated %}
+            <tr>
+                <th>ગૌત્ર</th>
+                <td>{{ family_member.family_identification }}</td>
+            </tr>
+        {% endif %}
+
+        <tr>
+            <th>મૂળ વતન</th>
+            <td>{{ family_member.old_location }}</td>
+        </tr>
+
+        <tr>
+            <th>પિતા</th>
+            <td>
+                {% if family_member.parent %}
+                    {% if family_member.parent.city_id != 72 or request.user.is_superuser %}
+                        <a href="{% url 'familytree_app:family_member_detail' family_member.parent.id %}">{{ family_member.parent.full_name }}</a>
+                    {% else %}
+                        <!-- Display nothing (blank) when there is a parent with city_id=72 for non-superusers -->
+                    {% endif %}
+                {% else %}
+                    <!-- Display nothing (blank) when there is no parent -->
+                {% endif %}
+            </td>
+        </tr>
+
+                {% if user.is_authenticated %}
+            {% if family_member.gender == "M" %}
+                <tr>
+                    <th>પત્ની</th>
+                    <td>
+                        {% if family_member.spouse %}
+                            <a href="{% url 'familytree_app:family_member_detail' family_member.spouse.id %}">{{ family_member.spouse }}</a>
+                        {% endif %}
+                    </td>
+                </tr>
+            {% else %}
+                <tr>
+                    <th>પતિ</th>
+                    <td>
+                        {% if family_member.spouse %}
+                            <a href="{% url 'familytree_app:family_member_detail' family_member.spouse.id %}">{{ family_member.spouse }}</a>
+                        {% endif %}
+                    </td>
+                </tr>
+            {% endif %}
+
+            <tr>
+                <th>માતા</th>
+                <td>
+                    {% if family_member.parent %}
+                        {% if family_member.parent.gender == 'M' %}
+                            {% if family_member.parent.spouse %}
+                                <a href="{% url 'familytree_app:family_member_detail' family_member.parent.spouse.id %}">{{ family_member.parent.spouse.full_name }} </a>
+                            {% endif %}
+                        {% elif family_member.parent.gender == 'F' %}
+                            {% if family_member.parent.mother %}
+                                {{ family_member.parent.mother.full_name }}
+                            {% endif %}
+                        {% endif %}
+                    {% else %}
+
+                    {% endif %}
+                </td>
+            </tr>
+
+
+
+
+	{% else %}
+
+
+
+
+
+
+
+
+{% if family_member.spouse %}
+
+            {% if family_member.gender == "M" %}
+                <tr>
+                    <th>પત્ની</th>
+                    <td>
+                        {% if family_member.spouse %}
+                            <a href="{% url 'familytree_app:family_member_detail' family_member.spouse.id %}">{{ family_member.spouse }}</a>
+                        {% endif %}
+                    </td>
+                </tr>
+            {% else %}
+                <tr>
+                    <th>પતિ</th>
+                    <td>
+                        {% if family_member.spouse %}
+                            <a href="{% url 'familytree_app:family_member_detail' family_member.spouse.id %}">{{ family_member.spouse }}</a>
+                        {% endif %}
+                    </td>
+                </tr>
+            {% endif %}
+ {% endif %}
+
+
+{% if family_member.parent.spouse %}
+            <tr>
+                <th>માતા</th>
+                <td>
+                    {% if family_member.parent %}
+                        {% if family_member.parent.gender == 'M' %}
+                            {% if family_member.parent.spouse %}
+                                <a href="{% url 'familytree_app:family_member_detail' family_member.parent.spouse.id %}">{{ family_member.parent.spouse.full_name }} </a>
+                            {% endif %}
+                        {% elif family_member.parent.gender == 'F' %}
+                            {% if family_member.parent.mother %}
+                                {{ family_member.parent.mother.full_name }}
+                            {% endif %}
+                        {% endif %}
+                    {% else %}
+
+                    {% endif %}
+                </td>
+            </tr>
+
+{% endif %}
+
+
+
+
+
+
+
+
+        {% endif %}
+
+        <tr>
+            <th>ભાઈ</th>
+            <td>
+                {% if family_member.parent and family_member.parent.city_id != 72%}
+                    {% for sibling_of_mother2 in family_member.parent.children.all %}
+                        {% if sibling_of_mother2.gender == 'M' and sibling_of_mother2 != family_member and sibling_of_mother2.city_id != 72 %}
+                            <a href="{% url 'familytree_app:family_member_detail' sibling_of_mother2.id %}">
+                                <ul><li>{{ sibling_of_mother2.full_name }} </li></ul>
+                            </a>
+                        {% endif %}
+                    {% endfor %}
+                {% endif %}
+            </td>
+        </tr>
+
+
+        <tr>
+            <th>બહેન</th>
+            <td>
+                {% if family_member.parent %}
+                    {% for sibling_of_mother2 in family_member.parent.children.all %}
+                        {% if sibling_of_mother2.gender == 'F' and sibling_of_mother2 != family_member %}
+                            <a href="{% url 'familytree_app:family_member_detail' sibling_of_mother2.id %}">
+                                <ul><li>{{ sibling_of_mother2.full_name }} </li></ul>
+                            </a>
+                        {% endif %}
+                    {% endfor %}
+                {% endif %}
+            </td>
+        </tr>
+
+        {% if user.is_authenticated %}
+            <tr>
+                <th>મામા</th>
+                <td>
+                    {% if family_member.parent %}
+                        {% if family_member.parent.gender == 'M' %}
+                            {% if family_member.parent.spouse %}
+                                {% for step_uncle in family_member.parent.spouse.parent.children.all %}
+                                    {% if step_uncle.gender == 'M' and step_uncle != family_member.parent %}
+                                        <a href="{% url 'familytree_app:family_member_detail' step_uncle.id %}">
+                                            <ul><li>{{ step_uncle.full_name }}  {{ step_uncle.surname }}  {{ step_uncle.city }} </li></ul>
+                                        </a>
+                                    {% endif %}
+                                {% endfor %}
+                            {% endif %}
+                        {% endif %}
+                    {% endif %}
+                </td>
+            </tr>
+        {% endif %}
+
+        <tr>
+            <th>કાકા/દાદા</th>
+            <td>
+                {% if family_member.parent and family_member.parent.city_id != 72%}
+                    {% for sibling_of_mother2 in family_member.parent.parent.children.all %}
+                        {% if sibling_of_mother2.gender == 'M' and sibling_of_mother2 != family_member.parent and sibling_of_mother2.city_id != 72 %}
+                            <a href="{% url 'familytree_app:family_member_detail' sibling_of_mother2.id %}">
+                                <ul><li>{{ sibling_of_mother2.full_name }}  {{ sibling_of_mother2.surname }}  {{ sibling_of_mother2.city }}  </li></ul>
+                            </a>
+                        {% endif %}
+                    {% endfor %}
+                {% endif %}
+            </td>
+        </tr>
+
+
+        <tr>
+            <th>ફઈ</th>
+            <td>
+                {% if family_member.parent %}
+                    {% for sibling_of_mother2 in family_member.parent.parent.children.all %}
+                        {% if sibling_of_mother2.gender == 'F' %}
+                            <a href="{% url 'familytree_app:family_member_detail' sibling_of_mother2.id %}">
+                                <ul><li>{{ sibling_of_mother2.full_name }} </li></ul>
+                            </a>
+                        {% endif %}
+                    {% endfor %}
+                {% endif %}
+            </td>
+        </tr>
+
+        {% if user.is_authenticated %}
+            <tr>
+                <th>Date added</th>
+                <td>{{ family_member.date_added|date:"d/m/Y" }}</td>
+            </tr>
+        {% endif %}
+        <!-- Add other member details as needed -->
+
+        <!-- Add other fields here -->
+    </table>
+
+    {% if user.is_authenticated %}
+        <div class="buttons">
+            <a class="edit-btn" href="{% url 'familytree_app:family_member_update' family_member.id %}">Edit</a>
+            <a class="delete-btn" href="{% url 'familytree_app:family_member_delete' family_member.id %}">Delete</a>
+            {% if family_member.gender == "M" %}
+                <a class="add-child-btn" href="{% url 'familytree_app:family_member_add_child' family_member.id %}">Add Child</a>
+            {% endif %}
+        </div>
+    {% endif %}
+
+    <div class="buttons">
+        {% if family_member.gender == "M" %}
+            <a href="{% url 'familytree_app:view_child_tree' family_member.id %}" class="btn btn-info">View Child Tree</a>
+        {% endif %}
+    </div>
+
+</div>
+{% endblock %}

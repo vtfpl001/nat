@@ -1,0 +1,103 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<style>
+    .family-member-detail {
+        border: 2px solid #007bff;
+        padding: 20px;
+        border-radius: 10px;
+        margin: 20px auto;
+        max-width: 600px;
+        background-color: #f7f7f7;
+    }
+
+    .border-effect {
+        border: 2px solid #007bff;
+        padding: 15px;
+        border-radius: 5px;
+        margin: 10px 0;
+    }
+
+    .text-highlight {
+        color: #007bff;
+    }
+
+    .highlight {
+        background-color: #f7f7f7;
+        padding: 2px 5px;
+        border-radius: 3px;
+    }
+
+    .details-list {
+        list-style-type: none;
+        padding: 0;
+    }
+
+    .details-list li {
+        margin: 5px 0;
+    }
+
+    .buttons {
+        margin-top: 20px;
+    }
+
+    .edit-btn,
+    .delete-btn,
+    .add-child-btn {
+        background-color: #007bff;
+        color: #ffffff;
+        padding: 10px 15px;
+        border: none;
+        border-radius: 5px;
+        text-decoration: none;
+        margin-right: 10px;
+    }
+</style>
+
+<div class="family-member-detail">
+    <div class="border-effect">
+
+
+
+
+  <h2>Add Wifefor {{ male_member.full_name }}</h2>
+  <form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+
+
+    {% if female_member %}
+      <h3>Fetched Female Member:</h3>
+      <p>ID       : {{ female_member.ID }}</p>
+      <p>Surname  : {{ female_member.surname }}</p>
+      <p>Name     : {{ female_member.full_name }}</p>
+      <p>Farther  : {{ female_member.parent }}</p>
+      <p>Address  : {{ female_member.address }}</p>
+      <p>City     : {{ female_member.city }}</p>
+      <p>Mobile   : {{ female_member.mobile }}</p>
+      <p>Gautra   : {{ female_member.family_identification }}</p>
+      <p>Husband  : {{ female_member.spouse }}</p>
+      <p>Education: {{ female_member.educatione }}</p>
+      <p>WorkType : {{ female_member.work_type }}</p>
+      <p>Remark   : {{ female_member.remark }}</p>
+      <p>Dt.Added : {{ female_member.date_added }}</p>
+      <p>GrandFthr: {{ female_member.parent.parent }}</p>
+
+      <p>Other Details: {{ female_member.other_field }}</p>
+    {% endif %}
+
+</div>
+    <div class="buttons">
+
+    <button type="submit" name="fetch_spouse" class="btn btn-secondary">Fetch Wife</button>
+    <button type="submit" name="save_spouse" class="btn btn-primary">Save as my wife</button>
+
+
+
+
+  </form>
+</div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h2>Leave a Comment</h2>
+
+  <form method="post" action="{% url 'familytree_app:comment_submit' %}">
+    {% csrf_token %}
+    
+    <!-- Display any form errors -->
+    {% if form.errors %}
+      <div class="alert alert-danger" role="alert">
+        {{ form.errors }}
+      </div>
+    {% endif %}
+
+    <!-- Your form fields -->
+    <div class="form-group">
+      {{ form.msg.label_tag }}
+      {{ form.msg }}
+    </div>
+
+    <div class="form-group">
+      {{ form.mobile.label_tag }}
+      {{ form.mobile }}
+    </div>
+
+    <div class="form-group">
+      {{ form.surname.label_tag }}
+      {{ form.surname }}
+    </div>
+
+    <div class="form-group">
+      {{ form.name.label_tag }}
+      {{ form.name }}
+    </div>
+
+    <div class="form-group">
+      {{ form.city.label_tag }}
+      {{ form.city }}
+    </div>
+
+    <button type="submit" class="btn btn-primary">Submit</button>
+  </form>
+{% endblock %}

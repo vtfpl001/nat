@@ -1,0 +1,35 @@
+<!-- familytree_app/templates/familytree_app/instructions.html -->
+
+{% extends 'base.html' %}
+
+{% block content %}
+  <style>
+    .instructions-container {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .instruction-item {
+      text-align: justify;
+      display: flex;
+      justify-content: flex-start;
+      align-items: baseline;
+    }
+
+    .instruction-number {
+      margin-right: 10px;
+      font-weight: bold;
+    }
+  </style>
+
+  <h2>જરૂરી સૂચના અને માહિતી</h2>
+  <div class="instructions-container">
+    {% for instruction in instructions_list %}
+      <div class="instruction-item">
+        <div class="instruction-number">{{ instruction.srNo }}:</div>
+        <div>{{ instruction.msg|linebreaksbr }}</div>
+      </div>
+    {% endfor %}
+  </div>
+{% endblock %}

@@ -1,0 +1,22 @@
+<!-- family_tree_node.html -->
+
+
+
+{% if member.gender == "F" and user.is_authenticated and user.is_staff%}
+<a href="{% url 'familytree_app:family_member_detail' member.id %}"><font color="#9900FF">{{ member.full_name }}</font></a>
+{% endif %}
+
+
+{% if member.gender == "M" %}
+<a href="{% url 'familytree_app:family_member_detail' member.id %}" class="level-{{ level }}">{{ member.full_name }}</a>
+{% endif %}
+
+{% if member.children.all %}
+    <ul>
+        {% for child_obj in member.children.all %}
+            <li>
+                {% include 'familytree_app/family_tree_node.html' with member=child_obj level=level|add:1 %}
+            </li>
+        {% endfor %}
+    </ul>
+{% endif %}

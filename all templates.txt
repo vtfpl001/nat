@@ -1,0 +1,1715 @@
+Following are my all templates including base.html and home.html.  There are lots of styles and authentication.
+
+I need all style in one place and also want to control authentication of visibility of EDIT/DETELE/ADD CHILD based on loged in user in templates code only.
+
+How can i make it very easy
+
+base.html
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title>{% block title %}રાજગોર બ્રાહ્મણ પરિવાર{% endblock %}</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+  <style>
+    body {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+    .container {
+      flex: 1;
+    }
+    .menu-text {
+      margin-right: 10px;
+    }
+    .action-separator {
+      margin: 0 10px;
+    }
+
+    <!-- Add this inside the <style> section in base.html -->
+@media (min-width: 769px) {
+  .search-form-mobile {
+    display: none;
+  }
+}
+
+
+
+
+  /* ... your existing styles ... */
+
+  /* Add this inside the <style> section in base.html */
+  .small-symbols {
+    font-size: 10px; /* Adjust the font size as needed */
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .small-symbols a {
+    margin-right: 10px; /* Adjust the margin as needed */
+  }
+
+
+
+
+  </style>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+  <a class="navbar-brand" href="{% url 'familytree_app:home' %}">Home</a>
+  <span class="action-separator"></span>
+  {% if user.is_authenticated and user.is_staff or user.username|slice:":6" == 'add888' or user.username|slice:":7" == 'edit444'%}
+  <a class="navbar-brand" href="{% url 'familytree_app:family_member_list' %}">List</a>
+  {% endif %}
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+    Menu
+  </button>
+  <div class="collapse navbar-collapse" id="navbarNav">
+    <ul class="navbar-nav">
+      {% if user.is_authenticated and user.is_staff %}
+      <li class="nav-item">
+        <a class="nav-link" href="{% url 'familytree_app:view_all_roots' %}">Root Members</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="{% url 'familytree_app:view_all_leaves' %}">Leaves</a>
+      </li>
+      {% endif %}
+      {% if user.is_superuser or user.username|slice:":6" == 'add888' %}
+      <li class="nav-item">
+        <a class="nav-link" href="{% url 'familytree_app:family_member_create' %}">Add Root</a>
+      </li>
+      {% endif %}
+    </ul>
+
+<form class="form-inline mt-3" method="GET" action="{% url 'familytree_app:search_by_name' %}">
+  <input class="form-control mr-sm-2" type="search" placeholder="Search by ID/name/add" name="search">
+  <select class="form-control mr-sm-2" name="selected_city">
+    <option value="" selected disabled>બધા ગામો</option>
+    {% for city in cities %}
+      <option value="{{ city.id }}">{{ city.name }}</option>
+    {% endfor %}
+  </select>
+ {% if user.is_authenticated and user.is_staff and user.is_admin %}
+  <select class="form-control mr-sm-2" name="selected_family_identification">
+    <option value="" selected disabled>બધા ગૌત્ર</option>
+    {% for family_id in family_identifications %}
+      <option value="{{ family_id.id }}">{{ family_id.name }}</option>
+    {% endfor %}
+  </select>
+  {% endif %}
+  <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+</form>
+
+
+
+   {% if user.is_authenticated and user.is_staff %}
+    <form class "form-inline mt-3" method="GET" action="{% url 'familytree_app:filter_by_gender' %}">
+      <select class="form-control mr-sm-2" name="selected_gender">
+        <option value="" selected disabled>Filter by Gender</option>
+        <option value="M">Male</option>
+        <option value="F">Female</option>
+      </select>
+      <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Apply Filter</button>
+    </form>
+    {% endif %}
+
+
+
+
+  </div>
+</nav>
+<div class="container">
+  {% block content %}
+  {% endblock %}
+</div>
+<footer class="footer mt-auto py-3 bg-light" style="display: flex; flex-direction: column; align-items: center;">
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    Total Members: {{ total_family_members }} | Males: {{ total_males }} | Females: {{ total_females }}<br>
+પ્રોગ્રામર: મનીષભાઈ ભાસ્કરભાઇ જોષી, મહુવા,  સંપર્ક: <a href="https://wa.me/919978136555" target="_blank">+91-9978136555 (WhatsApp)</a>
+  </div>
+  <div>
+    {% if user.is_authenticated %}
+      <a class="small-symbols" href="{% url 'familytree_app:logout' %}?next={% url 'familytree_app:home' %}">🚪</a>
+    {% else %}
+      <a class="small-symbols" href="{% url 'familytree_app:login' %}?next={% url 'familytree_app:home' %}">🔒</a>
+    {% endif %}
+  </div>
+</footer>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const searchFormMobile = document.querySelector('.search-form-mobile');
+    const navbarToggle = document.querySelector('.navbar-toggler');
+
+    navbarToggle.addEventListener('click', function () {
+        if (window.innerWidth <= 768) {
+            searchFormMobile.style.display = searchFormMobile.style.display === 'none' ? 'block' : 'none';
+        }
+    });
+
+    window.addEventListener('resize', function () {
+        if (window.innerWidth > 768) {
+            searchFormMobile.style.display = 'block';
+        }
+    });
+});
+</script>
+</body>
+</html>
+
+
+
+child.html
+
+<!-- child.html -->
+{% if child.gender == "F" %}
+<a href="{% url 'familytree_app:family_member_detail' child.id %}"><font color="#9900FF">{{ child.full_name }}</font></a>
+{% endif %}
+
+{% if child.gender == "M" %}
+<a href="{% url 'familytree_app:family_member_detail' child.id %}">{{ child.full_name }}</a>
+{% endif %}
+
+
+
+{% if child.children.all %}
+    <ul>
+        {% for child_obj in child.children.all %}
+            <li>
+                {% include 'familytree_app/child.html' with child=child_obj %}
+            </li>
+        {% endfor %}
+    </ul>
+{% endif %}
+
+
+family_member_add_child.html
+
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+    .family-member-detail {
+        border: 2px solid #007bff;
+        padding: 20px;
+        border-radius: 10px;
+        margin: 20px auto;
+        max-width: 600px;
+        background-color: #f7f7f7;
+    }
+    
+    .border-effect {
+        border: 2px solid #007bff;
+        padding: 15px;
+        border-radius: 5px;
+        margin: 10px 0;
+    }
+    
+    .text-highlight {
+        color: #007bff;
+    }
+    
+    .highlight {
+        background-color: #f7f7f7;
+        padding: 2px 5px;
+        border-radius: 3px;
+    }
+    
+    .details-list {
+        list-style-type: none;
+        padding: 0;
+    }
+    
+    .details-list li {
+        margin: 5px 0;
+    }
+    
+    .buttons {
+        margin-top: 20px;
+    }
+    
+    .edit-btn,
+    .delete-btn,
+    .add-child-btn {
+        background-color: #007bff;
+        color: #ffffff;
+        padding: 10px 15px;
+        border: none;
+        border-radius: 5px;
+        text-decoration: none;
+        margin-right: 10px;
+    }
+    
+    @media print {
+    /* Set page size to auto (adjusts to content) */
+    @page {
+        size: auto;
+        margin: 5mm; /* Add margins for better appearance */
+    }
+
+    /* Adjust the font size and padding for content */
+    .tree li a {
+        font-size: 8px; /* Reduce font size */
+        padding: 2px 4px; /* Reduce padding */
+    }
+
+  
+}
+</style>
+
+<div class="family-member-detail">
+    <div class="border-effect">
+
+
+<h2>Add Child for {{ parent_member.full_name }}</h2>
+
+<form method="post">
+  {% csrf_token %}
+
+
+ 
+
+
+
+
+  {{ child_form.as_p }}
+
+
+
+
+</div>
+    <div class="buttons">
+
+  <button type="submit" name="action" value="save">Save</button>
+  <button type="submit" name="action" value="save_and_add_more">Save and Add More</button>
+
+</form>
+
+</div>
+</div>
+
+
+
+
+
+{% endblock %}
+
+
+
+
+family_member_confirm_delete.html
+
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>Delete Family Member: {{ family_member.full_name }}</h2>
+<p>Are you sure you want to delete this family member?</p>
+<form method="post">
+  {% csrf_token %}
+  <button type="submit">Yes, delete</button>
+  <a href="{% url 'familytree_app:family_member_detail' family_member.id %}">Cancel</a>
+</form>
+{% endblock %}
+
+
+
+family_member_detail.html
+
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+    .family-member-detail {
+        padding: 20px;
+        margin: 20px auto;
+        max-width: 800px; /* Adjust the maximum width */
+        background-color: #f9f9f9;
+        border: 1px solid #ddd;
+        border-radius: 10px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+     .family-member-detail h2 {
+        font-size: 28px; /* Increase the font size */
+        font-weight: bold; /* Make it bold */
+        margin-bottom: 10px;
+        color: #fff; /* Change text color to white for contrast */
+        background-color: #4CAF50; /* Change background color to green */
+        padding: 10px; /* Add some padding for spacing */
+        text-align: center;
+        border-radius: 5px;
+    }
+
+    .details-table-container {
+        overflow-x: auto;
+    }
+
+    .details-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+    }
+
+    .details-table th,
+    .details-table td {
+        padding: 10px;
+        text-align: left;
+        border: 1px solid #ddd;
+        color: #333;
+    }
+
+    .details-table th {
+        background-color: #f7f7f7;
+    }
+
+    .buttons {
+        margin-top: 20px;
+        text-align: center;
+    }
+
+    .edit-btn,
+    .delete-btn,
+    .add-child-btn,
+    .btn-info {
+        background-color: #007bff;
+        color: #fff;
+        padding: 10px 15px;
+        border: none;
+        border-radius: 5px;
+        text-decoration: none;
+        margin-right: 10px;
+    }
+
+    /* Responsive styles */
+    @media screen and (max-width: 768px) {
+        .family-member-detail {
+            padding: 10px;
+            margin: 10px auto;
+        }
+
+        .details-table {
+            font-size: 14px;
+        }
+    }
+</style>
+
+<div class="family-member-detail">
+
+    <!-- nichenu hatavi aa lagavvu jo female ma surmae ave to unmarried ma <h2 class="text-highlight">{{ family_member.surname }} {{ family_member.full_name }}</h2>  -->
+
+
+
+
+                {% if family_member.gender == 'M' %}
+                    <h2 class="text-highlight">{{ family_member.surname }} {{ family_member.full_name }}</h2>
+
+
+                {% elif family_member.gender == 'F' and  family_member.spouse%}
+                    <h2 class="text-highlight">{{ family_member.surname }} {{ family_member.full_name }}</h2>
+
+                {% else %}
+                    <h2 class="text-highlight"> {{ family_member.full_name }}</h2>
+                {% endif %}
+
+
+
+
+
+
+
+
+
+    <table class="details-table">
+        <tr>
+            <th>ID</th>
+            <td>{{ family_member.id }}</td>
+        </tr>
+        {% if family_member.gender == "M" %}
+<tr>
+    <th>પિતા</th>
+    <td>
+        {% if family_member.parent %}
+            <a href="{% url 'familytree_app:family_member_detail' family_member.parent.id %}">{{ family_member.parent }}</a>
+        {% endif %}
+    </td>
+</tr>
+
+        {% else %}
+
+
+        {% if user.is_authenticated %}
+
+            <tr>
+                <th>Husband</th>
+                <td>
+                    {% if family_member.spouse.id %}
+                        <a href="{% url 'familytree_app:family_member_detail' family_member.spouse.id %}">{{ family_member.spouse }}</a>
+                    {% endif %}
+                </td>
+            </tr>
+
+        {% endif %}
+
+        {% endif %}
+
+
+
+
+        <tr>
+            <th>Gender</th>
+            <td>{{ family_member.gender }}</td>
+        </tr>
+        <!-- Add other fields as needed -->
+
+
+
+    {% if family_member.gender == 'M' %}
+        <tr>
+            <th>જન્મ તારીખ</th>
+            <td>{{ family_member.date_of_birth|date:"d/m/Y" }}</td>
+        </tr>
+
+
+
+
+        <tr>
+            <th>સરનામુ</th>
+            <td>{{ family_member.address|linebreaksbr }}</td>
+        </tr>
+        <tr>
+            <th>City</th>
+            <td>{{ family_member.city }}</td>
+        </tr>
+        <tr>
+            <th>મોબાઈલ</th>
+            <td>{{ family_member.mobile }}</td>
+        </tr>
+        <tr>
+            <th>Email</th>
+            <td>{{ family_member.email }}</td>
+        </tr>
+
+    {% endif %}
+        <tr>
+            <th>Remark</th>
+            <td>{{ family_member.remarks|linebreaksbr }}</td>
+        </tr>
+
+        {% if user.is_authenticated %}
+        <tr>
+            <th>ગૌત્ર</th>
+            <td>{{ family_member.family_identification }}</td>
+        </tr>
+        {% endif %}
+
+        <tr>
+            <th>મૂળ વતન</th>
+            <td>{{ family_member.old_location }}</td>
+        </tr>
+
+        <!-- Add other fields as needed -->
+
+<tr>
+    <th>પિતા</th>
+    <td>
+        {% if family_member.parent %}
+            <a href="{% url 'familytree_app:family_member_detail' family_member.parent.id %}">{{ family_member.parent.full_name }}</a>
+        {% else %}
+            <!-- Display nothing (blank) when there is no parent -->
+        {% endif %}
+    </td>
+</tr>
+
+
+
+
+
+{% if user.is_authenticated %}
+
+{% if family_member.gender == "M" %}
+    <tr>
+        <th>પત્ની</th>
+        <td>
+            {% if family_member.spouse %}
+                <a href="{% url 'familytree_app:family_member_detail' family_member.spouse.id %}">{{ family_member.spouse }}</a>
+            {% endif %}
+        </td>
+    </tr>
+{% else %}
+    <tr>
+        <th>પતિ</th>
+        <td>
+            {% if family_member.spouse %}
+                <a href="{% url 'familytree_app:family_member_detail' family_member.spouse.id %}">{{ family_member.spouse }}</a>
+            {% endif %}
+        </td>
+    </tr>
+{% endif %}
+
+
+
+
+        <tr>
+            <th>માતા</th>
+            <td>
+                {% if family_member.parent %}
+                    {% if family_member.parent.gender == 'M' %}
+                        {% if family_member.parent.spouse %}
+                            <a href="{% url 'familytree_app:family_member_detail' family_member.parent.spouse.id %}">{{ family_member.parent.spouse.full_name }} </a>
+                        {% endif %}
+                    {% elif family_member.parent.gender == 'F' %}
+                        {% if family_member.parent.mother %}
+                            {{ family_member.parent.mother.full_name }}
+                        {% endif %}
+                    {% endif %}
+                {% else %}
+
+                {% endif %}
+            </td>
+        </tr>
+
+{% endif %}
+
+
+
+        <tr>
+            <th>ભાઈ</th>
+            <td>
+                {% if family_member.parent %}
+                    {% for sibling_of_mother2 in family_member.parent.children.all %}
+                        {% if sibling_of_mother2.gender == 'M' and sibling_of_mother2 != family_member %}
+                            <a href="{% url 'familytree_app:family_member_detail' sibling_of_mother2.id %}">
+                                <ul><li>{{ sibling_of_mother2.full_name }} </li></ul>
+                            </a>
+                        {% endif %}
+                    {% endfor %}
+                {% endif %}
+            </td>
+        </tr>
+
+        <tr>
+            <th>બહેન</th>
+            <td>
+                {% if family_member.parent %}
+                    {% for sibling_of_mother2 in family_member.parent.children.all %}
+                        {% if sibling_of_mother2.gender == 'F' and sibling_of_mother2 != family_member %}
+                            <a href="{% url 'familytree_app:family_member_detail' sibling_of_mother2.id %}">
+                                <ul><li>{{ sibling_of_mother2.full_name }} </li></ul>
+                            </a>
+                        {% endif %}
+                    {% endfor %}
+                {% endif %}
+            </td>
+        </tr>
+
+
+
+
+
+        <tr>
+            <th>મામા</th>
+            <td>
+                {% if family_member.parent %}
+                    {% if family_member.parent.gender == 'M' %}
+                        {% if family_member.parent.spouse %}
+                            {% for step_uncle in family_member.parent.spouse.parent.children.all %}
+                                {% if step_uncle.gender == 'M' and step_uncle != family_member.parent %}
+                                    <a href="{% url 'familytree_app:family_member_detail' step_uncle.id %}">
+                                        <ul><li>{{ step_uncle.full_name }}  {{ step_uncle.surname }}  {{ step_uncle.city }} </li></ul>
+                                    </a>
+                                {% endif %}
+                            {% endfor %}
+                        {% endif %}
+                    {% endif %}
+                {% endif %}
+            </td>
+        </tr>
+
+        <tr>
+            <th>કાકા/દાદા</th>
+            <td>
+                {% if family_member.parent %}
+                    {% for sibling_of_mother2 in family_member.parent.parent.children.all %}
+                        {% if sibling_of_mother2.gender == 'M' and sibling_of_mother2 != family_member.parent %}
+                            <a href="{% url 'familytree_app:family_member_detail' sibling_of_mother2.id %}">
+                                <ul><li>{{ sibling_of_mother2.full_name }}  {{ sibling_of_mother2.surname }}  {{ sibling_of_mother2.city }}  </li></ul>
+                            </a>
+                        {% endif %}
+                    {% endfor %}
+                {% endif %}
+            </td>
+        </tr>
+
+        <tr>
+            <th>ફઈ</th>
+            <td>
+                {% if family_member.parent %}
+                    {% for sibling_of_mother2 in family_member.parent.parent.children.all %}
+                        {% if sibling_of_mother2.gender == 'F' %}
+                            <a href="{% url 'familytree_app:family_member_detail' sibling_of_mother2.id %}">
+                                <ul><li>{{ sibling_of_mother2.full_name }} </li></ul>
+                            </a>
+                        {% endif %}
+                    {% endfor %}
+                {% endif %}
+            </td>
+        </tr>
+
+
+{% if user.is_authenticated %}
+        <tr>
+            <th>Date added</th>
+            <td>{{ family_member.date_added|date:"d/m/Y" }}</td>
+        </tr>
+{% endif %}
+        <!-- Add other member details as needed -->
+
+        <!-- Add other fields here -->
+    </table>
+
+    {% if user.is_authenticated %}
+        <div class="buttons">
+            <a class="edit-btn" href="{% url 'familytree_app:family_member_update' family_member.id %}">Edit</a>
+            <a class="delete-btn" href="{% url 'familytree_app:family_member_delete' family_member.id %}">Delete</a>
+            {% if family_member.gender == "M" %}
+                <a class="add-child-btn" href="{% url 'familytree_app:family_member_add_child' family_member.id %}">Add Child</a>
+            {% endif %}
+
+        </div>
+    {% endif %}
+
+        <div class="buttons">
+    {% if family_member.gender == "M" %}
+        <a href="{% url 'familytree_app:view_child_tree' family_member.id %}" class="btn btn-info">View Child Tree</a>
+    {% endif %}
+        </div>
+
+</div>
+{% endblock %}
+
+
+
+family_member_form.html
+
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+    .family-member-detail {
+        border: 2px solid #007bff;
+        padding: 20px;
+        border-radius: 10px;
+        margin: 20px auto;
+        max-width: 600px;
+        background-color: #f7f7f7;
+    }
+
+    .border-effect {
+        border: 2px solid #007bff;
+        padding: 15px;
+        border-radius: 5px;
+        margin: 10px 0;
+    }
+
+    .text-highlight {
+        color: #007bff;
+    }
+
+    .highlight {
+        background-color: #f7f7f7;
+        padding: 2px 5px;
+        border-radius: 3px;
+    }
+
+    .details-list {
+        list-style-type: none;
+        padding: 0;
+    }
+
+    .details-list li {
+        margin: 5px 0;
+    }
+
+    .buttons {
+        margin-top: 20px;
+    }
+
+    .edit-btn,
+    .delete-btn,
+    .add-child-btn {
+        background-color: #007bff;
+        color: #ffffff;
+        padding: 10px 15px;
+        border: none;
+        border-radius: 5px;
+        text-decoration: none;
+        margin-right: 10px;
+    }
+</style>
+
+
+
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+
+<script>
+    $(document).ready(function () {
+        // Check the username condition and disable combo boxes accordingly
+        var username = "{{ request.user.username }}" || "";  // Get the username from the template variable
+        if (username.startsWith('add888') || username.startsWith('edit444')) {
+            // Disable the parent and spouse combo boxes
+            $('#id_parent').prop('disabled', true);
+            $('#id_spouse').prop('disabled', true);
+        }
+    });
+</script>
+
+
+
+
+
+<div class="family-member-detail">
+    <div class="border-effect">
+
+
+<h2>{% if form.instance.pk %}Edit Family Member{% else %}Create Family Member{% endif %}</h2>
+
+<form method="post">
+  {% csrf_token %}
+  {{ form.as_p }}
+
+ </div>
+    <div class="buttons">
+
+
+
+  <button type="submit">Save</button>
+</form>
+
+<a href="{% url 'familytree_app:family_member_list' %}">Back to List</a>
+</div>
+</div>
+{% endblock %}
+
+
+
+family_member_list.html
+
+{% extends 'base.html' %}
+
+{% block content %}
+
+
+
+<style>
+    .page-title {
+        font-size: 28px;
+        font-weight: bold;
+        color: #4CAF50; /* Green text color */
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+    .member-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .member-table th {
+        background-color: #4CAF50; /* Green background color */
+        color: #fff; /* White text color */
+        text-align: center;
+        padding: 10px;
+    }
+
+    .member-table td {
+        text-align: center;
+        padding: 10px;
+    }
+
+    .member-table a {
+        text-decoration: none;
+    }
+
+    .member-actions {
+        text-align: center;
+    }
+
+    .pagination {
+        margin-top: 20px;
+        text-align: center;
+    }
+
+    .pagination a {
+        margin: 0 5px;
+        padding: 5px 10px;
+        border: 1px solid #4CAF50; /* Green border */
+        background-color: #fff; /* White background color */
+        color: #4CAF50; /* Green text color */
+        text-decoration: none;
+    }
+
+    .pagination .current-page {
+        margin: 0 5px;
+        padding: 5px 10px;
+        background-color: #4CAF50; /* Green background color */
+        color: #fff; /* White text color */
+        border: 1px solid #4CAF50; /* Green border */
+    }
+</style>
+
+
+<table class="table table-striped table-hover">
+  <thead>
+    <tr>
+{{ form.ID.label_tag }}
+
+      <th>ID</th>
+      <th>નામ</th>
+
+    {% if user.is_authenticated %}
+      <th>Gender</th>
+    {% endif %}
+
+      <th>અટક</th>
+      <th>City</th>
+      <th>પિતા</th>
+      <th>Actions</th>
+
+    </tr>
+  </thead>
+  <tbody>
+    {% for member in family_members %}
+      <tr>
+        <td>{{ member.id }}</td>
+        <td><a href="{% url 'familytree_app:family_member_detail' member.id %}">{{ member.full_name }}</a></td>
+
+
+        {% if user.is_authenticated %}
+        <td>{{ member.gender }}</td>
+        {% endif %}
+
+
+
+{% if member.gender == 'M' %}
+
+        <td>{{ member.surname }}</td>
+        <td>{{ member.city }}</td>
+
+{% else %}
+
+
+{% if user.is_authenticated %}
+
+        <td>{{ member.surname }}</td>
+        <td>{{ member.city }}</td>
+{% else %}
+
+        <td></td>
+        <td></td>
+
+{% endif %}
+
+
+
+
+
+{% endif %}
+
+
+
+
+        <td>{{ member.parent }}</td>
+        <td>
+
+
+
+{% if user.is_authenticated %}
+          <a href="{% url 'familytree_app:family_member_update' member.id %}" class="btn btn-sm btn-primary">Edit</a>
+
+
+
+
+
+          <a href="{% url 'familytree_app:family_member_delete' member.id %}" class="btn btn-sm btn-danger">Delete</a>
+
+
+
+
+     {% if member.gender == 'M' %}
+          <a href="{% url 'familytree_app:family_member_add_child' member.id %}" class="btn btn-sm btn-success">Add Child</a>
+     {% endif %}
+
+
+{% endif %}
+
+
+     {% if member.gender == 'M' %}
+           <a href="{% url 'familytree_app:view_child_tree' member.id %}" class="btn btn-info">Child Tree</a>
+
+  {% endif %}
+
+
+
+        </td>
+
+
+
+
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+
+
+
+<div class="pagination">
+    <span class="step-links">
+        {% if family_members.has_previous %}
+            <a href="?page=1{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.selected_gender %}&selected_gender={{ request.GET.selected_gender }}{% endif %}{% if request.GET.selected_city %}&selected_city={{ request.GET.selected_city }}{% endif %}{% if request.GET.selected_family_identification %}&selected_family_identification={{ request.GET.selected_family_identification }}{% endif %}" class="btn btn-outline-secondary">First</a>
+            <a href="?page={{ family_members.previous_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.selected_gender %}&selected_gender={{ request.GET.selected_gender }}{% endif %}{% if request.GET.selected_city %}&selected_city={{ request.GET.selected_city }}{% endif %}{% if request.GET.selected_family_identification %}&selected_family_identification={{ request.GET.selected_family_identification }}{% endif %}" class="btn btn-outline-secondary">Previous</a>
+        {% endif %}
+
+        <span class="current-page">Page {{ family_members.number }} of {{ family_members.paginator.num_pages }}</span>
+
+        {% if family_members.has_next %}
+            <a href="?page={{ family_members.next_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.selected_gender %}&selected_gender={{ request.GET.selected_gender }}{% endif %}{% if request.GET.selected_city %}&selected_city={{ request.GET.selected_city }}{% endif %}{% if request.GET.selected_family_identification %}&selected_family_identification={{ request.GET.selected_family_identification }}{% endif %}" class="btn btn-outline-secondary">Next</a>
+            <a href="?page={{ family_members.paginator.num_pages }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.selected_gender %}&selected_gender={{ request.GET.selected_gender }}{% endif %}{% if request.GET.selected_city %}&selected_city={{ request.GET.selected_city }}{% endif %}{% if request.GET.selected_family_identification %}&selected_family_identification={{ request.GET.selected_family_identification }}{% endif %}" class="btn btn-outline-secondary">Last</a>
+        {% endif %}
+    </span>
+</div>
+
+
+
+
+
+
+
+
+
+{% endblock %}
+
+
+
+family_tree_node.html
+
+<!-- family_tree_node.html -->
+
+
+
+{% if member.gender == "F" and user.is_authenticated and user.is_staff%}
+<a href="{% url 'familytree_app:family_member_detail' member.id %}"><font color="#9900FF">{{ member.full_name }}</font></a>
+{% endif %}
+
+
+{% if member.gender == "M" %}
+<a href="{% url 'familytree_app:family_member_detail' member.id %}" class="level-{{ level }}">{{ member.full_name }}</a>
+{% endif %}
+
+{% if member.children.all %}
+    <ul>
+        {% for child_obj in member.children.all %}
+            <li>
+                {% include 'familytree_app/family_tree_node.html' with member=child_obj level=level|add:1 %}
+            </li>
+        {% endfor %}
+    </ul>
+{% endif %}
+
+
+
+
+home.html
+
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+    /* Add custom styles for your content here */
+    .custom-content {
+        background-color: #fff;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        margin-top: 5px;
+    }
+
+    h2 {
+        font-size: 24px;
+        color: #333;
+        text-align: center;
+    }
+
+    ul {
+        list-style-type: disc;
+        padding-left: 20px;
+    }
+
+    li {
+        font-size: 16px;
+        color: #555;
+        margin-bottom: 10px;
+        text-align: justify;
+    }
+
+    /* Define the max-width and max-height for images, making them responsive */
+    .image-container {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 10px; /* Adjust the gap as needed */
+    }
+
+    .image-container img {
+        max-width: 100%; /* Set the maximum width to the container width */
+        max-height: 150px; /* Set the maximum height for PC */
+        width: auto;
+        height: auto;
+        border: 2px solid #555; /* Border style */
+        border-radius: 10px; /* Border radius for a decorative look */
+    }
+
+    /* Responsive styles for smaller screens (mobile) */
+    @media (max-width: 768px) {
+        h2 {
+            font-size: 20px;
+        }
+
+        li {
+            font-size: 14px;
+        }
+
+        /* Add your search form here for mobile devices */
+        .search-form-mobile {
+            margin: 5px 0;
+            text-align: center;
+        }
+
+        /* Adjust the max-width and max-height for mobile */
+        .image-container img {
+            max-width: 100px; /* Set the maximum width for mobile */
+            max-height: 100px; /* Set the maximum height for mobile */
+        }
+    }
+
+    /* Hide the search form on larger screens (computers) */
+    @media (min-width: 769px) {
+        .search-form-mobile {
+            display: none;
+        }
+    }
+
+    .action-separator {
+        margin: 0 10px; /* Adjust the margin as needed to create the desired spacing */
+    }
+</style>
+
+<div class="container custom-content">
+    <div class="search-form-mobile">
+        <p style="text-align: justify; font-size: 16px;">
+            જરૂરી સૂચના:-  નામ થી SEARCH કરવું હોઈ તો નીચેના BOX માં ફક્ત નામ લખો (અટક કે પિતાનું નામ લખવું નય) અને પછી લીલા કલર નું બટન દબાવો.
+            દાખલા  તરીકે  MANISH અથવા MANISHBHAI.    પણ JOSHI MANISHBHAI એમ ના લખવું. બોલી ને ગોતવા માટે બ્લુ કલર નું બટન દબાવી ફક્ત નામ બોલો.
+        </p>
+
+        <form class="form-inline" method="GET" action="{% url 'familytree_app:search_by_name' %}">
+            <input class="form-control" type="search" placeholder="Search by ID/name/address/mobile" name="search" id="search-input">
+            <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+            <span class="action-separator">|</span>
+            <button id="voice-search-button" class="btn btn-primary" onclick="startSpeechRecognition()">Search by Voice</button>
+            <div id="voice-search-feedback"></div>
+        </form>
+    </div>
+
+    <h2><span style="color: green; font-weight: bold;">સમસ્ત રાજગોર બ્રાહ્મણ જ્ઞાતિજનોની ડિજિટલ ડાયરી.</span></h2>
+
+    <ul>
+        {% for msgkind in msgkinds %}
+        <li><a href="{% url 'familytree_app:msgkind_entries' msgkind.id %}">{{ msgkind.msgK }}</a></li>
+        {% endfor %}
+    </ul>
+
+    <ul>
+        <li><a href="{% url 'familytree_app:instructions' %}">જરૂરી સૂચના અને માહિતી </a></li>
+    </ul>
+</div>
+
+<div class="image-container">
+    {% for photo in photos %}
+        <!-- Set a class for styling purposes and apply the max-width to the images -->
+        <img class="responsive-image" src="{{ photo.photo_url.url }}" alt="{{ photo.description }}">
+    {% endfor %}
+</div>
+</div>
+
+<script>
+function startSpeechRecognition() {
+    const voiceSearchButton = document.getElementById("voice-search-button");
+    const searchInput = document.getElementById("search-input");
+    const voiceSearchFeedback = document.getElementById("voice-search-feedback");
+
+    if ('webkitSpeechRecognition' in window) {
+        const recognition = new webkitSpeechRecognition();
+
+        recognition.onresult = function(event) {
+            const result = event.results[0][0].transcript;
+            searchInput.value = result;
+            voiceSearchFeedback.innerText = `You said: ${result}`;
+            searchInput.form.submit();
+        };
+
+        recognition.onend = function() {
+            voiceSearchButton.disabled = false;
+            voiceSearchFeedback.innerText = "Voice recognition ended. Click 'Search' to start searching.";
+        };
+
+        recognition.start();
+        voiceSearchButton.disabled = true;
+        voiceSearchFeedback.innerText = "Listening... Speak now!";
+    } else {
+        voiceSearchFeedback.innerText = "Speech recognition is not supported in this browser.";
+    }
+}
+</script>
+
+{% endblock %}
+
+
+
+
+instructions.html
+
+<!-- familytree_app/templates/familytree_app/instructions.html -->
+
+{% extends 'base.html' %}
+
+{% block content %}
+  <style>
+    .instructions-container {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .instruction-item {
+      text-align: justify;
+      display: flex;
+      justify-content: flex-start;
+      align-items: baseline;
+    }
+
+    .instruction-number {
+      margin-right: 10px;
+      font-weight: bold;
+    }
+  </style>
+
+  <h2>જરૂરી સૂચના અને માહિતી</h2>
+  <div class="instructions-container">
+    {% for instruction in instructions_list %}
+      <div class="instruction-item">
+        <div class="instruction-number">{{ instruction.srNo }}:</div>
+        <div>{{ instruction.msg|linebreaksbr }}</div>
+      </div>
+    {% endfor %}
+  </div>
+{% endblock %}
+
+
+
+
+msgk_list.html
+
+<!-- familytree_app/templates/familytree_app/msgk_list.html -->
+
+{% extends 'base.html' %}
+
+{% block content %}
+  <h2>Message Kinds</h2>
+  <ul>
+    {% for msgkind in msgkinds %}
+      <li><a href="{% url 'familytree_app:msgkind_entries' msgkind.id %}">{{ msgkind.msgK }}</a></li>
+    {% endfor %}
+  </ul>
+{% endblock %}
+
+
+
+msgkind_entries.html
+
+<!-- familytree_app/templates/familytree_app/msgkind_entries.html -->
+
+{% extends 'base.html' %}
+
+{% block content %}
+  <h2>{{ msgkind.msgK }}</h2>
+  <ul>
+    {% for entry in entries %}
+      <li><a href="{% url 'familytree_app:sandesha_detail' entry.id %}">{{ entry.name }}</a></li>
+    {% endfor %}
+  </ul>
+{% endblock %}
+
+
+
+sandesha_detail.html
+
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+  .sandesha-photo img {
+    max-width: 100%;
+    height: auto;
+    border: 1px solid #ddd;
+    padding: 5px;
+    object-fit: cover; /* Use 'cover' to maintain aspect ratio and cover the frame */
+    width: 150px; /* Set the fixed width */
+    height: 200px; /* Set the fixed height */
+    border-radius: 10px;
+  }
+</style>
+
+<div class="sandesha-detail-container">
+  <div class="sandesha-info">
+    <p><h2>{{ sandesha_entry.msgType.msgK }}</h2></p>
+    <p style="text-align: justify;">{{ sandesha_entry.msg }}</p>
+  <p style="text-align: right;">{{ sandesha_entry.signatureP }}</p>
+
+  </div>
+
+  <div class="sandesha-photo">
+    {% if sandesha_entry.photo_url %}
+      <img src="{{ sandesha_entry.photo_url.url }}" alt="{{ sandesha_entry.name }}">
+    {% endif %}
+  </div>
+</div>
+
+{% endblock %}
+
+
+
+search_results.html
+
+{% extends 'base.html' %}
+
+{% block title %}Search Results{% endblock %}
+
+{% block content %}
+<style>
+    .page-title {
+        font-size: 28px;
+        font-weight: bold;
+        color: #4CAF50; /* Green text color */
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+    .member-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .member-table th {
+        background-color: #4CAF50; /* Green background color */
+        color: #fff; /* White text color */
+        text-align: center;
+        padding: 10px;
+    }
+
+    .member-table td {
+        text-align: center;
+        padding: 10px;
+    }
+
+    .member-table a {
+        text-decoration: none;
+    }
+
+    .member-actions {
+        text-align: center;
+    }
+
+    .pagination {
+        margin-top: 20px;
+        text-align: center;
+    }
+
+    .pagination a {
+        margin: 0 5px;
+        padding: 5px 10px;
+        border: 1px solid #4CAF50; /* Green border */
+        background-color: #fff; /* White background color */
+        color: #4CAF50; /* Green text color */
+        text-decoration: none;
+    }
+
+    .pagination .current-page {
+        margin: 0 5px;
+        padding: 5px 10px;
+        background-color: #4CAF50; /* Green background color */
+        color: #fff; /* White text color */
+        border: 1px solid #4CAF50; /* Green border */
+    }
+</style>
+<h1>Search Results</h1>
+
+<table>
+    <thead>
+        <tr>
+            <th>Full Name</th>
+            <th>Date of Birth</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for member in members %}
+            <tr class="{% cycle 'odd' 'even' %}">
+                <td>{{ member.full_name }}</td>
+                <td>{{ member.date_of_birth|date:"d/m/Y" }}</td>
+                <td class="action-buttons">
+                    <a href="{% url 'update_member' member.id %}">Edit</a>
+                    <span class="action-separator">|</span>
+                    <a href="{% url 'delete_member' member.id %}">Delete</a>
+                    <span class="action-separator">|</span>
+                    <a href="{% url 'add_child' member.id %}">Add Child</a>
+                    <span class="action-separator">|</span>
+                    <a href="{% url 'view_child_tree' member.id %}">View Child Tree</a>
+                </td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+<a href="{% url 'create_member' %}">Add Member</a>
+{% endblock %}
+
+
+
+
+view_all.html
+
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+    .page-title {
+        font-size: 28px;
+        font-weight: bold;
+        color: #4CAF50; /* Green text color */
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+    .member-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .member-table th {
+        background-color: #4CAF50; /* Green background color */
+        color: #fff; /* White text color */
+        text-align: center;
+        padding: 10px;
+    }
+
+    .member-table td {
+        text-align: center;
+        padding: 10px;
+    }
+
+    .member-table a {
+        text-decoration: none;
+    }
+
+    .member-actions {
+        text-align: center;
+    }
+
+    .pagination {
+        margin-top: 20px;
+        text-align: center;
+    }
+
+    .pagination a {
+        margin: 0 5px;
+        padding: 5px 10px;
+        border: 1px solid #4CAF50; /* Green border */
+        background-color: #fff; /* White background color */
+        color: #4CAF50; /* Green text color */
+        text-decoration: none;
+    }
+
+    .pagination .current-page {
+        margin: 0 5px;
+        padding: 5px 10px;
+        background-color: #4CAF50; /* Green background color */
+        color: #fff; /* White text color */
+        border: 1px solid #4CAF50; /* Green border */
+    }
+</style>
+
+<h2>{{ title }}</h2>
+
+<table class="table table-striped table-hover">
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>નામ</th>
+      <th>અટક</th>
+      <th>City</th>
+      <th>પિતા</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for member in members %}
+      <tr>
+        <td>{{ member.id }}</td>
+        <td><a href="{% url 'familytree_app:family_member_detail' member.id %}">{{ member.full_name }}</a></td>
+        <td>{{ member.surname }}</td>
+        <td>{{ member.city }}</td>
+        <td>{{ member.parent }}</td>
+        <td>
+{% if user.is_authenticated %}
+
+
+          <a href="{% url 'familytree_app:family_member_update' member.id %}" class="btn btn-sm btn-primary">Edit</a>
+          <a href="{% url 'familytree_app:family_member_delete' member.id %}" class="btn btn-sm btn-danger">Delete</a>
+      {% if member.gender == 'M' %}
+          <a href="{% url 'familytree_app:family_member_add_child' member.id %}" class="btn btn-sm btn-success">Add Child</a>
+     {% endif %}
+
+
+
+
+{% endif %}
+
+
+
+      {% if member.gender == 'M' %}
+           <a href="{% url 'familytree_app:view_child_tree' member.id %}" class="btn btn-info">View Child Tree</a>
+
+  {% endif %}
+
+        </td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<div class="pagination">
+  <span class="step-links">
+    {% if members.has_previous %}
+      <a href="?page=1" class="btn btn-outline-secondary">First</a>
+      <a href="?page={{ members.previous_page_number }}" class="btn btn-outline-secondary">Previous</a>
+    {% endif %}
+
+    <span class="current-page">Page {{ members.number }} of {{ members.paginator.num_pages }}</span>
+
+    {% if members.has_next %}
+      <a href="?page={{ members.next_page_number }}" class="btn btn-outline-secondary">Next</a>
+      <a href="?page={{ members.paginator.num_pages }}" class="btn btn-outline-secondary">Last</a>
+    {% endif %}
+  </span>
+</div>
+
+{% endblock %}
+
+
+
+
+view_child_tree.html
+
+{% extends 'base.html' %}
+{% block title %}View Child Tree{% endblock %}
+{% block content %}
+<style>
+/* CSS for styling the family tree */
+* { margin: 0; padding: 0; }
+/* CSS for styling the family tree */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box; /* Ensures consistent box model */
+}
+
+.tree {
+    display: inline-block; /* Prevents tree from expanding to full width */
+    overflow-x: auto; /* Add horizontal scrollbar if needed */
+    white-space: nowrap; /* Prevents nodes from wrapping */
+}
+
+.tree ul {
+    padding-top: 20px;
+    position: relative;
+    list-style: none; /* Remove default list bullets */
+}
+
+.tree li {
+    display: inline-block; /* Display nodes side by side */
+    text-align: center;
+    position: relative;
+    padding: 20px 5px 0 5px;
+    vertical-align: top; /* Aligns nodes at the top */
+}
+
+.tree li::before,
+.tree li::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 50%;
+    border: 1px solid #ccc;
+    width: 50%;
+    height: 20px;
+}
+
+.tree li::after {
+    right: auto;
+    left: 50%;
+    border-left: none;
+    border-right: 1px solid #ccc;
+}
+
+.tree li:first-child::before,
+.tree li:last-child::after {
+    border: none;
+}
+
+.tree li a {
+    border: 1px solid #ccc;
+    padding: 5px 10px;
+    text-decoration: none;
+    color: #666;
+    font-family: arial, verdana, tahoma;
+    font-size: 11px;
+    display: inline-block;
+    border-radius: 5px;
+    transition: all 0.5s;
+}
+
+.tree li a:hover {
+    background: #c8e4f8;
+    color: #000;
+    border: 1px solid #94a0b4;
+}
+
+.tree ul ul::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 50%;
+    border-left: 1px solid #ccc;
+    width: 0;
+    height: 20px;
+}
+/* Add the following styles for different levels */
+.tree li a.level-0 { color: #9900FF; font-weight: bold; }
+.tree li a.level-1 { color: #FF0000; font-weight: bold; }
+.tree li a.level-2 { color: #00FF00; font-weight: bold; }
+.tree li a.level-3 { color: #0000FF; font-weight: bold; }
+.tree li a.level-4 { color: #FFD700; font-weight: bold; }
+.tree li a.level-5 { color: #FF6347; font-weight: bold; }
+.tree li a.level-6 { color: #8A2BE2; font-weight: bold; }
+.tree li a.level-7 { color: #32CD32; font-weight: bold; }
+.tree li a.level-8 { color: #800000; font-weight: bold; }
+.tree li a.level-9 { color: #7B68EE; font-weight: bold; }
+.tree li a.level-10 { color: #228B22; font-weight: bold; }
+.tree li a.level-11 { color: #FF4500; font-weight: bold; }
+.tree li a.level-12 { color: #4169E1; font-weight: bold; }
+.tree li a.level-13 { color: #FF1493; font-weight: bold; }
+.tree li a.level-14 { color: #2E8B57; font-weight: bold; }
+.tree li a.level-15 { color: #9932CC; font-weight: bold; }
+.tree li a.level-16 { color: #00CED1; font-weight: bold; }
+.tree li a.level-17 { color: #8B4513; font-weight: bold; }
+.tree li a.level-18 { color: #FF8C00; font-weight: bold; }
+.tree li a.level-19 { color: #9400D3; font-weight: bold; }
+.tree li a.level-20 { color: #00FFFF; font-weight: bold; }
+.tree li a.level-21 { color: #7FFF00; font-weight: bold; }
+.tree li a.level-22 { color: #8B008B; font-weight: bold; }
+.tree li a.level-23 { color: #DC143C; font-weight: bold; }
+.tree li a.level-24 { color: #008080; font-weight: bold; }
+.tree li a.level-25 { color: #FF69B4; font-weight: bold; }
+.tree li a.level-26 { color: #FFA07A; font-weight: bold; }
+.tree li a.level-27 { color: #00FA9A; font-weight: bold; }
+.tree li a.level-28 { color: #4682B4; font-weight: bold; }
+.tree li a.level-29 { color: #FF4500; font-weight: bold; }
+/* Add more styles for additional levels as needed */
+
+
+
+
+@media print {
+    /* Set page size to auto (adjusts to content) */
+    @page {
+        size: auto;
+        margin: 5mm; /* Add margins for better appearance */
+    }
+
+    /* Adjust the font size and padding for content */
+    .tree li a {
+        font-size: 8px; /* Reduce font size */
+        padding: 2px 4px; /* Reduce padding */
+    }
+
+
+}
+
+
+
+</style>
+<!-- view_family_tree.html -->
+<div class="tree">
+    <ul>
+        <li>
+
+
+            {% if root_member.gender == "M" %}
+            <a href="{% url 'familytree_app:family_member_detail' root_member.id %}" class="level-0">{{ root_member.full_name }}</a>
+            {% endif %}
+
+            {% if root_member.children.all %}
+                <ul>
+                    {% for child_obj in root_member.children.all %}
+                        <li>
+                            {% include 'familytree_app/family_tree_node.html' with member=child_obj level=1 %}
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        </li>
+    </ul>
+</div>
+
+
+
+
+{% endblock %}
+
+
+
+view_child_tree_nested.html
+
+<div class="tree">
+    <ul>
+        <li>
+            <a href="#">{{ root_member.full_name }}</a>
+            {% if root_member.children.all %}
+                <ul>
+                    {% for child_obj in root_member.children.all %}
+                        <li>
+                            {% include 'familytree_app/family_tree_node.html' with member=child_obj %}
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        </li>
+    </ul>
+</div>

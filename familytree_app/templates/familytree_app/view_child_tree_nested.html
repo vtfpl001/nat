@@ -1,0 +1,16 @@
+<div class="tree">
+    <ul>
+        <li>
+            <a href="#">{{ root_member.full_name }}</a>
+            {% if root_member.children.all %}
+                <ul>
+                    {% for child_obj in root_member.children.all %}
+                        <li>
+                            {% include 'familytree_app/family_tree_node.html' with member=child_obj %}
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        </li>
+    </ul>
+</div>

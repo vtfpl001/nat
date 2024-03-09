@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+
+{% block title %}Search Results{% endblock %}
+
+{% block content %}
+<style>
+    .page-title {
+        font-size: 28px;
+        font-weight: bold;
+        color: #4CAF50; /* Green text color */
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+    .member-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .member-table th {
+        background-color: #4CAF50; /* Green background color */
+        color: #fff; /* White text color */
+        text-align: center;
+        padding: 10px;
+    }
+
+    .member-table td {
+        text-align: center;
+        padding: 10px;
+    }
+
+    .member-table a {
+        text-decoration: none;
+    }
+
+    .member-actions {
+        text-align: center;
+    }
+
+    .pagination {
+        margin-top: 20px;
+        text-align: center;
+    }
+
+    .pagination a {
+        margin: 0 5px;
+        padding: 5px 10px;
+        border: 1px solid #4CAF50; /* Green border */
+        background-color: #fff; /* White background color */
+        color: #4CAF50; /* Green text color */
+        text-decoration: none;
+    }
+
+    .pagination .current-page {
+        margin: 0 5px;
+        padding: 5px 10px;
+        background-color: #4CAF50; /* Green background color */
+        color: #fff; /* White text color */
+        border: 1px solid #4CAF50; /* Green border */
+    }
+</style>
+<h1>Search Results</h1>
+
+<table>
+    <thead>
+        <tr>
+            <th>Full Name</th>
+            <th>Date of Birth</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for member in members %}
+            <tr class="{% cycle 'odd' 'even' %}">
+                <td>{{ member.full_name }}</td>
+                <td>{{ member.date_of_birth|date:"d/m/Y" }}</td>
+                <td class="action-buttons">
+                    <a href="{% url 'update_member' member.id %}">Edit</a>
+                    <span class="action-separator">|</span>
+                    <a href="{% url 'delete_member' member.id %}">Delete</a>
+                    <span class="action-separator">|</span>
+                    <a href="{% url 'add_child' member.id %}">Add Child</a>
+                    <span class="action-separator">|</span>
+                    <a href="{% url 'view_child_tree' member.id %}">View Child Tree</a>
+                </td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+<a href="{% url 'create_member' %}">Add Member</a>
+{% endblock %}

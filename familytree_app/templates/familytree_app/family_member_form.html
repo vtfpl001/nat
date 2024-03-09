@@ -1,0 +1,98 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+    .family-member-detail {
+        border: 2px solid #007bff;
+        padding: 20px;
+        border-radius: 10px;
+        margin: 20px auto;
+        max-width: 600px;
+        background-color: #f7f7f7;
+    }
+
+    .border-effect {
+        border: 2px solid #007bff;
+        padding: 15px;
+        border-radius: 5px;
+        margin: 10px 0;
+    }
+
+    .text-highlight {
+        color: #007bff;
+    }
+
+    .highlight {
+        background-color: #f7f7f7;
+        padding: 2px 5px;
+        border-radius: 3px;
+    }
+
+    .details-list {
+        list-style-type: none;
+        padding: 0;
+    }
+
+    .details-list li {
+        margin: 5px 0;
+    }
+
+    .buttons {
+        margin-top: 20px;
+    }
+
+    .edit-btn,
+    .delete-btn,
+    .add-child-btn {
+        background-color: #007bff;
+        color: #ffffff;
+        padding: 10px 15px;
+        border: none;
+        border-radius: 5px;
+        text-decoration: none;
+        margin-right: 10px;
+    }
+</style>
+
+
+
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+
+<script>
+    $(document).ready(function () {
+        // Check the username condition and disable combo boxes accordingly
+        var username = "{{ request.user.username }}" || "";  // Get the username from the template variable
+        if (username.startsWith('add888') || username.startsWith('edit444')) {
+            // Disable the parent and spouse combo boxes
+            $('#id_parent').prop('disabled', true);
+            $('#id_spouse').prop('disabled', true);
+        }
+    });
+</script>
+
+
+
+
+
+<div class="family-member-detail">
+    <div class="border-effect">
+
+
+<h2>{% if form.instance.pk %}Edit Family Member{% else %}Create Family Member{% endif %}</h2>
+
+<form method="post">
+  {% csrf_token %}
+  {{ form.as_p }}
+
+ </div>
+    <div class="buttons">
+
+
+
+  <button type="submit">Save</button>
+</form>
+
+<a href="{% url 'familytree_app:family_member_list' %}">Back to List</a>
+</div>
+</div>
+{% endblock %}

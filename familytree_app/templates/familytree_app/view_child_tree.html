@@ -1,0 +1,175 @@
+{% extends 'base.html' %}
+{% block title %}View Child Tree{% endblock %}
+{% block content %}
+<style>
+/* CSS for styling the family tree */
+* { margin: 0; padding: 0; }
+/* CSS for styling the family tree */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box; /* Ensures consistent box model */
+}
+
+.tree {
+    display: inline-block; /* Prevents tree from expanding to full width */
+    overflow-x: auto; /* Add horizontal scrollbar if needed */
+    white-space: nowrap; /* Prevents nodes from wrapping */
+}
+
+.tree ul {
+    padding-top: 20px;
+    position: relative;
+    list-style: none; /* Remove default list bullets */
+}
+
+.tree li {
+    display: inline-block; /* Display nodes side by side */
+    text-align: center;
+    position: relative;
+    padding: 20px 5px 0 5px;
+    vertical-align: top; /* Aligns nodes at the top */
+}
+
+.tree li::before,
+.tree li::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 50%;
+    border: 1px solid #ccc;
+    width: 50%;
+    height: 20px;
+}
+
+.tree li::after {
+    right: auto;
+    left: 50%;
+    border-left: none;
+    border-right: 1px solid #ccc;
+}
+
+.tree li:first-child::before,
+.tree li:last-child::after {
+    border: none;
+}
+
+.tree li a {
+    border: 1px solid #ccc;
+    padding: 5px 10px;
+    text-decoration: none;
+    color: #666;
+    font-family: arial, verdana, tahoma;
+    font-size: 11px;
+    display: inline-block;
+    border-radius: 5px;
+    transition: all 0.5s;
+}
+
+.tree li a:hover {
+    background: #c8e4f8;
+    color: #000;
+    border: 1px solid #94a0b4;
+}
+
+.tree ul ul::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 50%;
+    border-left: 1px solid #ccc;
+    width: 0;
+    height: 20px;
+}
+/* Add the following styles for different levels */
+.tree li a.level-0 { color: #9900FF; font-weight: bold; }
+.tree li a.level-1 { color: #FF0000; font-weight: bold; }
+.tree li a.level-2 { color: #00FF00; font-weight: bold; }
+.tree li a.level-3 { color: #0000FF; font-weight: bold; }
+.tree li a.level-4 { color: #FFD700; font-weight: bold; }
+.tree li a.level-5 { color: #FF6347; font-weight: bold; }
+.tree li a.level-6 { color: #8A2BE2; font-weight: bold; }
+.tree li a.level-7 { color: #32CD32; font-weight: bold; }
+.tree li a.level-8 { color: #800000; font-weight: bold; }
+.tree li a.level-9 { color: #7B68EE; font-weight: bold; }
+.tree li a.level-10 { color: #228B22; font-weight: bold; }
+.tree li a.level-11 { color: #FF4500; font-weight: bold; }
+.tree li a.level-12 { color: #4169E1; font-weight: bold; }
+.tree li a.level-13 { color: #FF1493; font-weight: bold; }
+.tree li a.level-14 { color: #2E8B57; font-weight: bold; }
+.tree li a.level-15 { color: #9932CC; font-weight: bold; }
+.tree li a.level-16 { color: #00CED1; font-weight: bold; }
+.tree li a.level-17 { color: #8B4513; font-weight: bold; }
+.tree li a.level-18 { color: #FF8C00; font-weight: bold; }
+.tree li a.level-19 { color: #9400D3; font-weight: bold; }
+.tree li a.level-20 { color: #00FFFF; font-weight: bold; }
+.tree li a.level-21 { color: #7FFF00; font-weight: bold; }
+.tree li a.level-22 { color: #8B008B; font-weight: bold; }
+.tree li a.level-23 { color: #DC143C; font-weight: bold; }
+.tree li a.level-24 { color: #008080; font-weight: bold; }
+.tree li a.level-25 { color: #FF69B4; font-weight: bold; }
+.tree li a.level-26 { color: #FFA07A; font-weight: bold; }
+.tree li a.level-27 { color: #00FA9A; font-weight: bold; }
+.tree li a.level-28 { color: #4682B4; font-weight: bold; }
+.tree li a.level-29 { color: #FF4500; font-weight: bold; }
+/* Add more styles for additional levels as needed */
+
+
+
+
+@media print {
+    /* Set page size to auto (adjusts to content) */
+    @page {
+        size: auto;
+        margin: 5mm; /* Add margins for better appearance */
+    }
+
+    /* Adjust the font size and padding for content */
+    .tree li a {
+        font-size: 8px; /* Reduce font size */
+        padding: 2px 4px; /* Reduce padding */
+    }
+
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+</style>
+<!-- view_family_tree.html -->
+<div class="tree">
+    <ul>
+        <li>
+
+
+            {% if root_member.gender == "M" %}
+            <a href="{% url 'familytree_app:family_member_detail' root_member.id %}" class="level-0">{{ root_member.full_name }}</a>
+            {% endif %}
+
+            {% if root_member.children.all %}
+                <ul>
+                    {% for child_obj in root_member.children.all %}
+                        <li>
+                            {% include 'familytree_app/family_tree_node.html' with member=child_obj level=1 %}
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        </li>
+    </ul>
+</div>
+
+
+
+
+{% endblock %}

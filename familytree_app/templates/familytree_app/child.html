@@ -1,0 +1,20 @@
+<!-- child.html -->
+{% if child.gender == "F" %}
+<a href="{% url 'familytree_app:family_member_detail' child.id %}"><font color="#9900FF">{{ child.full_name }}</font></a>
+{% endif %}
+
+{% if child.gender == "M" %}
+<a href="{% url 'familytree_app:family_member_detail' child.id %}">{{ child.full_name }}</a>
+{% endif %}
+
+
+
+{% if child.children.all %}
+    <ul>
+        {% for child_obj in child.children.all %}
+            <li>
+                {% include 'familytree_app/child.html' with child=child_obj %}
+            </li>
+        {% endfor %}
+    </ul>
+{% endif %}

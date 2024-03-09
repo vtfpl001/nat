@@ -1,0 +1,12 @@
+<!-- familytree_app/templates/familytree_app/msgkind_entries.html -->
+
+{% extends 'base.html' %}
+
+{% block content %}
+  <h2>{{ msgkind.msgK }}</h2>
+  <ul>
+    {% for entry in entries %}
+      <li><a href="{% url 'familytree_app:sandesha_detail' entry.id %}">{{ entry.name }}</a></li>
+    {% endfor %}
+  </ul>
+{% endblock %}

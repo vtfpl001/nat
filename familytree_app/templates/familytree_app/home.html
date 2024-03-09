@@ -1,0 +1,151 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+    /* Add custom styles for your content here */
+    .custom-content {
+        background-color: #fff;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        margin-top: 5px;
+    }
+
+    h2 {
+        font-size: 24px;
+        color: #333;
+        text-align: center;
+    }
+
+    ul {
+        list-style-type: disc;
+        padding-left: 20px;
+    }
+
+    li {
+        font-size: 16px;
+        color: #555;
+        margin-bottom: 10px;
+        text-align: justify;
+    }
+
+    /* Define the max-width and max-height for images, making them responsive */
+    .image-container {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 10px; /* Adjust the gap as needed */
+    }
+
+    .image-container img {
+        max-width: 100%; /* Set the maximum width to the container width */
+        max-height: 150px; /* Set the maximum height for PC */
+        width: auto;
+        height: auto;
+        border: 2px solid #555; /* Border style */
+        border-radius: 10px; /* Border radius for a decorative look */
+    }
+
+    /* Responsive styles for smaller screens (mobile) */
+    @media (max-width: 768px) {
+        h2 {
+            font-size: 20px;
+        }
+
+        li {
+            font-size: 14px;
+        }
+
+        /* Add your search form here for mobile devices */
+        .search-form-mobile {
+            margin: 5px 0;
+            text-align: center;
+        }
+
+        /* Adjust the max-width and max-height for mobile */
+        .image-container img {
+            max-width: 100px; /* Set the maximum width for mobile */
+            max-height: 100px; /* Set the maximum height for mobile */
+        }
+    }
+
+    /* Hide the search form on larger screens (computers) */
+    @media (min-width: 769px) {
+        .search-form-mobile {
+            display: none;
+        }
+    }
+
+    .action-separator {
+        margin: 0 10px; /* Adjust the margin as needed to create the desired spacing */
+    }
+</style>
+
+<div class="container custom-content">
+    <div class="search-form-mobile">
+        <p style="text-align: justify; font-size: 16px;">
+            જરૂરી સૂચના:-  નામ થી SEARCH કરવું હોઈ તો નીચેના BOX માં ફક્ત નામ લખો (અટક કે પિતાનું નામ લખવું નય) અને પછી લીલા કલર નું બટન દબાવો.
+            દાખલા  તરીકે  MANISH અથવા MANISHBHAI.    પણ JOSHI MANISHBHAI એમ ના લખવું. બોલી ને ગોતવા માટે બ્લુ કલર નું બટન દબાવી ફક્ત નામ બોલો.
+        </p>
+
+        <form class="form-inline" method="GET" action="{% url 'familytree_app:search_by_name' %}">
+            <input class="form-control" type="search" placeholder="Search by ID/name/address/mobile" name="search" id="search-input">
+            <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+            <span class="action-separator">|</span>
+            <button id="voice-search-button" class="btn btn-primary" onclick="startSpeechRecognition()">Search by Voice</button>
+            <div id="voice-search-feedback"></div>
+        </form>
+    </div>
+
+    <h2><span style="color: green; font-weight: bold;">સમસ્ત રાજગોર બ્રાહ્મણ જ્ઞાતિજનોની ડિજિટલ ડાયરી.</span></h2>
+
+    <ul>
+        {% for msgkind in msgkinds %}
+        <li><a href="{% url 'familytree_app:msgkind_entries' msgkind.id %}">{{ msgkind.msgK }}</a></li>
+        {% endfor %}
+    </ul>
+
+    <ul>
+        <li><a href="{% url 'familytree_app:instructions' %}">જરૂરી સૂચના અને માહિતી </a></li>
+    </ul>
+</div>
+
+<div class="image-container">
+    {% for photo in photos %}
+        <!-- Set a class for styling purposes and apply the max-width to the images -->
+        <img class="responsive-image" src="{{ photo.photo_url.url }}" alt="{{ photo.description }}">
+    {% endfor %}
+</div>
+</div>
+
+<script>
+function startSpeechRecognition() {
+    const voiceSearchButton = document.getElementById("voice-search-button");
+    const searchInput = document.getElementById("search-input");
+    const voiceSearchFeedback = document.getElementById("voice-search-feedback");
+
+    if ('webkitSpeechRecognition' in window) {
+        const recognition = new webkitSpeechRecognition();
+
+        recognition.onresult = function(event) {
+            const result = event.results[0][0].transcript;
+            searchInput.value = result;
+            voiceSearchFeedback.innerText = `You said: ${result}`;
+            searchInput.form.submit();
+        };
+
+        recognition.onend = function() {
+            voiceSearchButton.disabled = false;
+            voiceSearchFeedback.innerText = "Voice recognition ended. Click 'Search' to start searching.";
+        };
+
+        recognition.start();
+        voiceSearchButton.disabled = true;
+        voiceSearchFeedback.innerText = "Listening... Speak now!";
+    } else {
+        voiceSearchFeedback.innerText = "Speech recognition is not supported in this browser.";
+    }
+}
+</script>
+
+{% endblock %}

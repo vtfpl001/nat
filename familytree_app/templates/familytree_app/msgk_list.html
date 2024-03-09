@@ -1,0 +1,12 @@
+<!-- familytree_app/templates/familytree_app/msgk_list.html -->
+
+{% extends 'base.html' %}
+
+{% block content %}
+  <h2>Message Kinds</h2>
+  <ul>
+    {% for msgkind in msgkinds %}
+      <li><a href="{% url 'familytree_app:msgkind_entries' msgkind.id %}">{{ msgkind.msgK }}</a></li>
+    {% endfor %}
+  </ul>
+{% endblock %}

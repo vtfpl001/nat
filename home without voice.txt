@@ -1,0 +1,117 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+    /* Add custom styles for your content here */
+    .custom-content {
+        background-color: #fff;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        margin-top: 20px;
+    }
+
+    h2 {
+        font-size: 24px;
+        color: #333;
+        text-align: center;
+    }
+
+    ul {
+        list-style-type: disc;
+        padding-left: 20px;
+    }
+
+    li {
+        font-size: 16px;
+        color: #555;
+        margin-bottom: 10px;
+        text-align: justify;
+    }
+
+    /* Define the max-width and max-height for images, making them responsive */
+    .image-container {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 10px; /* Adjust the gap as needed */
+    }
+
+    .image-container img {
+        max-width: 100%; /* Set the maximum width to the container width */
+        max-height: 150px; /* Set the maximum height for PC */
+        width: auto;
+        height: auto;
+        border: 2px solid #555; /* Border style */
+        border-radius: 10px; /* Border radius for a decorative look */
+    }
+
+    /* Responsive styles for smaller screens (mobile) */
+    @media (max-width: 768px) {
+        h2 {
+            font-size: 20px;
+        }
+
+        li {
+            font-size: 14px;
+        }
+
+        /* Add your search form here for mobile devices */
+        .search-form-mobile {
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        /* Adjust the max-width and max-height for mobile */
+        .image-container img {
+            max-width: 100px; /* Set the maximum width for mobile */
+            max-height: 100px; /* Set the maximum height for mobile */
+        }
+    }
+
+    /* Hide the search form on larger screens (computers) */
+    @media (min-width: 769px) {
+        .search-form-mobile {
+            display: none;
+        }
+    }
+</style>
+<div class="container custom-content">
+<div class="search-form-mobile">
+        <form class="form-inline" method="GET" action="{% url 'familytree_app:search_by_name' %}">
+            <input class="form-control" type="search" placeholder="Search by ID/name/adddress/mobile" name="search">
+            <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+        </form>
+    </div>
+    <h2><span style="color: green; font-weight: bold;">જ્ઞાતિજનોની ડિજિટલ ડાયરીમાં આપનું સ્વાગત છે.</span></h2>
+    <ul>
+        <li>આ વેબસાઇટ મારા અંગત ઉપયોગ માટે બનાવવામાં આવી છે. જો કે કોઈપણ વ્યક્તિ તેનો ઉપયોગ પોતાના જોખમ અને જવાબદારી પર કરી શકે છે </li>
+        <li>સૌપ્રથમ કૃપા કરીને સર્ચ બોક્સમાં તમારું નામ અથવા અટક અથવા સરનામું શોધીને તમારી પોતાની માહિતી લખેલી છે કે નહીં તે તપાસો.</li>
+        <li>જેની વિગતો અધૂરી જણાય તે વ્યક્તિ +91-9978136555 પર કૉલ કરી શકે છે અને whatsapp પર સંપૂર્ણ વિગતો આપીને પૂર્ણ કરવાનું કહી શકે છે.</li>
+        <li>જે વ્યક્તિને તેની વિગતો ખોટી લાગે  તે +91-9978136555 પર કૉલ કરી શકે છે અને whatsapp પર સાચી વિગતો આપીને સુધારવા માટે કહી શકે છે.</li>
+        <li>આ બધા સંબંધો કમ્પ્યુટર દ્વારા ઓટો જનરેટ થયા છે: પિતા, માતા, કાકા, દાદા, મામા, માસી, ફઈ, બહેન, ભાઈ.</li>
+        <li>પુરુષો તેમની પત્નીને ઉમેરી શકે છે. પૂર્વશરત એ છે કે તેમના સસરા અને તેમની પુત્રીની વિગતો આ વેબસાઈટમાં પહેલેથી જ ઉમેરવામાં આવી હોય. જો તમે તમારી પત્નીની વિગતો ઉમેરવા ઈચ્છો, તો તમારા બાળકના મામા/માસી સંબંધો આપોઆપ દેખાશે.</li>
+        <li>જો આપણે આપણા પૂર્વજો ની વિગતો આ એપ્લિકેશન માં ભરીયે તો એક અદભૂત વડલો જોઈ શકાય છે. ઉદાહરણ તરીકે મારા પોતાનો વડલો જોવા માટે આયા ક્લિક કરો <a href="https://keyurjoshi.pythonanywhere.com/view_child_tree/1/">My Family Tree</a> જે આ સાઇટ પરથી આપોઆપ જનરેટ થયું છે.  </li>
+        <li>કૉલ કરતાં પહેલાં, કૃપા કરીને વેબસાઇટ પરથી વ્યક્તિનું ID નોંધી લો. જેથી તેને સુધારવામાં સરળતા રહે.</li>
+        <li>આ વેબસાઈટ પરથી તમે જે માહિતી મેળવો છો તેનો ઉપયોગ કરતા પહેલા કૃપા કરીને તમારી જાતે ચકાસો.</li>
+        <li>સૂચનો આવકાર્ય છે</li>
+
+    </ul>
+
+
+
+</div>
+
+
+
+ <div class="image-container">
+    {% for photo in photos %}
+        <!-- Set a class for styling purposes and apply the max-width to the images -->
+        <img class="responsive-image" src="{{ photo.photo_url.url }}" alt="{{ photo.description }}">
+    {% endfor %}
+</div>
+
+
+
+
+{% endblock %}
